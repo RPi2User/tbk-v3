@@ -102,10 +102,12 @@ class MainProgram:
             self.debug_dummy()
         
     def debug_dummy(self) -> None:
+        # Initializes self.toc with Example-Values
         files: list[File] = [File(1, 1230, "Testfile", "/opt/test"), File(2, 54666666, "file.satan", "/asd", "0x00123456", "md5")]
         self.toc: TableOfContent = TableOfContent(files, "3", "384k", 400000000000, VERSION, datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
 
     def argparser(self) -> None:
+        # Main Subroutine, parses Args and decides each actions
         parser = argparse.ArgumentParser(
             prog="tbk",
             description="Software zur Steuerung von Bandlaufwerken der dritten Version")
@@ -134,26 +136,34 @@ class MainProgram:
         _args: argparse.Namespace = parser.parse_args()
         
         if DEBUG:
+            # Print Args
             print("[DEBUG] ARGS: " + str(_args))
             
         if _args.dump:
+            # First File of Tape is the Table of Contents. The TOC is saved as XML-File.
+            # self.dumpTOC() prints / dumps the XML-File 
             self.dumpTOC()
             exit(0)
         if _args.dry_run:
+            # Dry-Run: Only shows Actions, does not affect Filesystem / Tape
             self.dry_run = True
         if _args.checksum:
+            # Enables checksum checking (md5)
             self.cksum = True
         if _args.list:
+            # Prints TOC in a User-Readable manner
             self.showTOC(self.readTOC())
             exit(0)
         if _args.write != None:
+            # Writes arg "DIR" to Tape
             self.write(str(_args.write))
             exit(0)
         if _args.read != None:
             self.read(str(_args.read))
             exit(0)
-
+            
     def write(self, src_path: str) -> None:
+        # WIP: Create Object "self.toc" with default Values
         self.toc: TableOfContent = TableOfContent(files=self.getFilesFromDir(src_path),
                                                   lto_version="3", 
                                                   optimal_blocksize="384k", 
@@ -179,6 +189,7 @@ class MainProgram:
         
     
     def getFilesFromDir(self, src_path: str) -> list[File]:
+        # Parses given Dir and returns list of Object-Type "File"
         _out: list[File] = []
         try:
             for index, path in enumerate(os.listdir(path=src_path)):
@@ -194,6 +205,7 @@ class MainProgram:
         return _out
     
     def read(self, dest_path: str) -> None:
+        # Reads contents of Tape to given Dir
         self.toc = self.readTOC()
         self.showTOC(self.toc)
         if input("Do you want to restore to " + dest_path + "? [y/N] (y) ") == "N" or self.dry_run:
@@ -225,6 +237,7 @@ class MainProgram:
         self.tape_drive.rewind()
         
     def showTOC(self, toc: TableOfContent) -> None:
+        # User-Readable listing from Contents of Tape
         print("\n--- TAPE INFORMATION ---\n")
         print("- TBK-Version:\t" + toc.tbkV)
         print("- LTO-Version:\t" + toc.ltoV)
@@ -243,7 +256,7 @@ class MainProgram:
         print("└ \x1b[93m" + self.convertHRSize(float(_remaining)) + "\x1b[0m Remaining")
         
     def writeTOC(self, toc: TableOfContent) -> int:
-        # Create suitable Filename + Path
+        # Create suitable Filename + Path e.g. "/tmp/20231010_010101_toc.tmp"
         _xml_path: str = "/tmp/"+ datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_toc.tmp"
         # Create XML and write to Path
         self.toc2xml(toc=toc, export_path=_xml_path)
@@ -251,13 +264,13 @@ class MainProgram:
         self.tape_drive.write(_xml_path, True)
         # Remove Temp-File
         if DEBUG != True:
-            pass
+            # Does not Remove tmp-File when in DEBUG-Mode
             os.remove(_xml_path)
         return 0
     
     def readTOC(self) -> TableOfContent:
         # Steps:
-        # 1. Read XML-File from Tape to /tmp/read-timestamp.tmp
+        # 1. Read XML-File from Tape to /tmp/timestamp_toc-read.tmp
         # 2. Parse XML-File into ET.ElementTree
         # 3. Create TOC-Object, delete temporary File
         # 4. Return toc
@@ -332,6 +345,7 @@ class MainProgram:
         return _out
 
     def createCksum(self, path_to_file: str) -> str:
+        # Some bash/awk/string-Magic to get checksum from "md5sum" command
         _out: str = str(subprocess.check_output("md5sum '" + path_to_file + "' | awk '{ print $1}'", shell=True))
         _out = _out.split("'", 2)[1].split("\\", 1)[0]
         return _out
