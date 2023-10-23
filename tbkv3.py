@@ -41,7 +41,6 @@ class TapeDrive:
     def __init__(self, path_to_tape_drive: str, blocksize: str) -> None:
         self.bs: str = blocksize
         self.drive_path: str = path_to_tape_drive
-        self.rewind()
         
     def write(self, path_to_file: str, quiet: bool) -> None:
         _ec: int = 0    # Exit-Code
@@ -141,7 +140,8 @@ class MainProgram:
             
         if _args.dump:
             # First File of Tape is the Table of Contents. The TOC is saved as XML-File.
-            # self.dumpTOC() prints / dumps the XML-File 
+            # self.dumpTOC() prints / dumps the XML-File
+            self.tape_drive.rewind() 
             self.dumpTOC()
             exit(0)
         if _args.dry_run:
@@ -152,13 +152,16 @@ class MainProgram:
             self.cksum = True
         if _args.list:
             # Prints TOC in a User-Readable manner
+            self.tape_drive.rewind() 
             self.showTOC(self.readTOC())
             exit(0)
         if _args.write != None:
             # Writes arg "DIR" to Tape
+            self.tape_drive.rewind() 
             self.write(str(_args.write))
             exit(0)
         if _args.read != None:
+            self.tape_drive.rewind() 
             self.read(str(_args.read))
             exit(0)
             
