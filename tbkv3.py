@@ -131,6 +131,9 @@ class MainProgram:
         parser.add_argument("-c", "--checksum",
                             help="Enable md5sum checking at write / read",
                             action="store_true")
+        parser.add_argument("-e", "--eject",
+                            help="Ejects tape",
+                            action="store_true")
         
         _args: argparse.Namespace = parser.parse_args()
         
@@ -143,6 +146,10 @@ class MainProgram:
             # self.dumpTOC() prints / dumps the XML-File
             self.tape_drive.rewind() 
             self.dumpTOC()
+            exit(0)
+        if _args.eject:
+            # Eject Tape
+            self.tape_drive.eject()
             exit(0)
         if _args.dry_run:
             # Dry-Run: Only shows Actions, does not affect Filesystem / Tape
@@ -320,6 +327,7 @@ class MainProgram:
             xml_root: ET.Element = ET.parse(source=path_to_xml).getroot()
         except:
             print("[ERROR] Could not parse Table of Contents: Invalid Format")
+            print("Try 'tbk --dump | -d'")
             exit(1)
         files: list[File] = []
         for index in range(1, len(xml_root)):
