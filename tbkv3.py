@@ -327,7 +327,7 @@ class MainProgram:
             xml_root: ET.Element = ET.parse(source=path_to_xml).getroot()
         except:
             print("[ERROR] Could not parse Table of Contents: Invalid Format")
-            print("Try 'tbk --dump | -d'")
+            print("Try 'tbk --dump | tbk -d'")
             exit(1)
         files: list[File] = []
         for index in range(1, len(xml_root)):
