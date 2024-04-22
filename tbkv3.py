@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# rut-bs unix tape backup system
 import os
 import argparse
 import pathlib
@@ -133,6 +133,12 @@ class MainProgram:
                             action="store_true")
         parser.add_argument("-e", "--eject",
                             help="Ejects tape",
+                            action="store_true")
+        parser.add_argument("-q", "--quiet",
+                            help="Discards output of dd",
+                            action="store_true")
+        parser.add_argument("-v", "--version",
+                            help="Prints Version",
                             action="store_true")
         
         _args: argparse.Namespace = parser.parse_args()
