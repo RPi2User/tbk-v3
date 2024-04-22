@@ -17,3 +17,4 @@ Tape-Backup Software for LTO-Tapes Version 3
 2. Create a config-file with default LTO-n Values and the ability to cusomize them. LTO-n-LUT: Propably written in xml
 3. Proper exception-Handling
 4. Create a Wiki
+5. XML-Export and local storage, TAPE-Fingerprinting (UUID)
